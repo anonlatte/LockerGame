@@ -1,0 +1,25 @@
+# === idea ===
+**/*.iml
+/.idea/
+/.run/
+
+# === kotlin ===
+/.kotlin/
+
+# === gradle ===
+**/.gradle/
+**/local.properties
+
+# === temp ===
+**/build/
+**/temp/
+**/bin/
+**/captures
+
+# === OS specific ===
+**/.DS_Store
+
+# === native ===
+**/.cxx/
+**/captures/
+**/.externalNativeBuild/
