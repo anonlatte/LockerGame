@@ -76,6 +76,17 @@ fun GameScreen(
         focusRequester.requestFocus()
     }
 
+    LaunchedEffect(uiState.canAutoConfirm, uiState.dialValue, uiState.progress.currentStepIndex, uiState.phase) {
+        if (!uiState.canAutoConfirm || uiState.isUnlocked) return@LaunchedEffect
+        delay(500)
+        if (viewModel.uiState.value.canAutoConfirm &&
+            viewModel.uiState.value.dialValue == uiState.dialValue &&
+            viewModel.uiState.value.progress.currentStepIndex == uiState.progress.currentStepIndex
+        ) {
+            viewModel.onConfirmInput()
+        }
+    }
+
     LaunchedEffect(Unit) {
         viewModel.effects.collectLatest { effect ->
             when (effect) {

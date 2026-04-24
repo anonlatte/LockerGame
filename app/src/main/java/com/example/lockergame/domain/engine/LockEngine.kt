@@ -26,6 +26,17 @@ class LockEngine(
         phase = state.phase,
     )
 
+    fun canConfirmCurrentStep(): Boolean {
+        val stepIndex = state.currentStepIndex
+        if (state.isUnlocked || state.phase == LockPhase.Clearing || state.phase == LockPhase.ReadyToOpen) {
+            return false
+        }
+        if (stepIndex >= combination.values.size) return false
+        val target = combination.values[stepIndex]
+        return matchesTarget(state.dialValue, target, config.tolerance) &&
+            state.currentTargetHitCount >= requiredHitsForStep(stepIndex)
+    }
+
     fun dispatch(event: LockEngineEvent): List<LockEngineOutput> = when (event) {
         LockEngineEvent.ConfirmStep -> {
             val result = confirmCurrentStep()

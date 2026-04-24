@@ -126,9 +126,11 @@ class GameViewModel @Inject constructor(
         if (previousState != null && currentState != null) {
             val success = currentState.currentStepIndex > previousState.currentStepIndex || currentState.isUnlocked
             val failure = outputs.any { it == LockEngineOutput.WrongMove || it == LockEngineOutput.Reset }
-            when {
-                success -> emitEffect(GameUiEffect.FlashDialSuccess)
-                failure || outputs.any { it == LockEngineOutput.InputConfirmed } -> emitEffect(GameUiEffect.FlashDialFailure)
+            if (settings.value.difficulty == com.example.lockergame.domain.model.LockDifficulty.Easy) {
+                when {
+                    success -> emitEffect(GameUiEffect.FlashDialSuccess)
+                    failure || outputs.any { it == LockEngineOutput.InputConfirmed } -> emitEffect(GameUiEffect.FlashDialFailure)
+                }
             }
         }
 
@@ -190,6 +192,7 @@ class GameViewModel @Inject constructor(
             unlockAnimationPhase = unlockAnimationPhase ?: _uiState.value.unlockAnimationPhase,
             tutorialHintsEnabled = currentSettings.tutorialHintsEnabled,
             dialDivisions = currentDialDivisions,
+            canAutoConfirm = currentEngine.canConfirmCurrentStep(),
         )
     }
 }

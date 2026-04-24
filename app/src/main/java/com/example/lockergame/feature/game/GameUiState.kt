@@ -17,6 +17,7 @@ data class GameUiState(
     val unlockAnimationPhase: UnlockAnimationPhase = UnlockAnimationPhase.Locked,
     val tutorialHintsEnabled: Boolean = true,
     val dialDivisions: Int = 60,
+    val canAutoConfirm: Boolean = false,
 )
 
 sealed interface GameUiEffect {
