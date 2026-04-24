@@ -215,8 +215,8 @@ class LockEngine(
     }
 
     private fun expectedDirection(stepIndex: Int): RotationDirection = when (stepIndex % 2) {
-        0 -> RotationDirection.CounterClockwise
-        else -> RotationDirection.Clockwise
+        0 -> RotationDirection.Clockwise
+        else -> RotationDirection.CounterClockwise
     }
 
     private fun resetToStart(mistakes: Int = state.mistakeCount) {

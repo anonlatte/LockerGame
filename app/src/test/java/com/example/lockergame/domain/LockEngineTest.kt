@@ -21,9 +21,9 @@ class LockEngineTest {
         )
 
         engine.dispatch(LockEngineEvent.StartAttempt)
-        val firstHit = rotateTo(engine, 12, RotationDirection.CounterClockwise)
+        val firstHit = rotateTo(engine, 12, RotationDirection.Clockwise)
         val firstConfirm = confirm(engine)
-        val secondHit = rotateTo(engine, 18, RotationDirection.Clockwise)
+        val secondHit = rotateTo(engine, 18, RotationDirection.CounterClockwise)
         val secondStepOutputs = confirm(engine)
 
         assertThat(firstHit).contains(LockEngineOutput.CorrectStepHit)
@@ -41,7 +41,7 @@ class LockEngineTest {
         )
 
         engine.dispatch(LockEngineEvent.StartAttempt)
-        val wrongOutputs = rotateTo(engine, 50, RotationDirection.Clockwise)
+        val wrongOutputs = rotateTo(engine, 50, RotationDirection.CounterClockwise)
         val confirmOutputs = confirm(engine)
 
         assertThat(wrongOutputs).contains(LockEngineOutput.WrongMove)
@@ -63,7 +63,7 @@ class LockEngineTest {
         assertThat(engine.state.phase).isEqualTo(LockPhase.Clearing)
 
         rotate(engine, RotationDirection.Clockwise, 120)
-        rotateTo(engine, 40, RotationDirection.CounterClockwise)
+        rotateTo(engine, 40, RotationDirection.Clockwise)
         confirm(engine)
 
         assertThat(engine.state.phase).isEqualTo(LockPhase.Step2)
@@ -78,14 +78,14 @@ class LockEngineTest {
 
         engine.dispatch(LockEngineEvent.StartAttempt)
         rotate(engine, RotationDirection.Clockwise, 120)
-        val firstHit = rotateTo(engine, 50, RotationDirection.CounterClockwise)
+        val firstHit = rotateTo(engine, 50, RotationDirection.Clockwise)
         confirm(engine)
-        rotateTo(engine, 55, RotationDirection.Clockwise)
+        rotateTo(engine, 55, RotationDirection.CounterClockwise)
 
         assertThat(firstHit).contains(LockEngineOutput.CorrectStepHit)
         assertThat(engine.state.currentStepIndex).isEqualTo(1)
 
-        val outputs = rotate(engine, RotationDirection.Clockwise, 60)
+        val outputs = rotate(engine, RotationDirection.CounterClockwise, 60)
         val confirmOutputs = confirm(engine)
 
         assertThat(outputs).contains(LockEngineOutput.CorrectStepHit)
@@ -102,9 +102,9 @@ class LockEngineTest {
 
         engine.dispatch(LockEngineEvent.StartAttempt)
         rotate(engine, RotationDirection.Clockwise, 180)
-        rotateTo(engine, 50, RotationDirection.CounterClockwise)
+        rotateTo(engine, 50, RotationDirection.Clockwise)
         confirm(engine)
-        val outputs = rotate(engine, RotationDirection.CounterClockwise, 1)
+        val outputs = rotate(engine, RotationDirection.Clockwise, 1)
 
         assertThat(outputs).contains(LockEngineOutput.Reset)
         assertThat(engine.state.phase).isEqualTo(LockPhase.Clearing)
@@ -119,9 +119,9 @@ class LockEngineTest {
 
         engine.dispatch(LockEngineEvent.StartAttempt)
         rotate(engine, RotationDirection.Clockwise, 120)
-        val firstHit = rotateTo(engine, 50, RotationDirection.CounterClockwise)
+        val firstHit = rotateTo(engine, 50, RotationDirection.Clockwise)
         confirm(engine)
-        val outputs = rotate(engine, RotationDirection.Clockwise, 90)
+        val outputs = rotate(engine, RotationDirection.CounterClockwise, 90)
         val confirmOutputs = confirm(engine)
 
         assertThat(firstHit).contains(LockEngineOutput.CorrectStepHit)
@@ -139,11 +139,11 @@ class LockEngineTest {
         )
 
         engine.dispatch(LockEngineEvent.StartAttempt)
-        rotateTo(engine, 58, RotationDirection.CounterClockwise)
+        rotateTo(engine, 58, RotationDirection.Clockwise)
         confirm(engine)
-        rotateTo(engine, 5, RotationDirection.Clockwise)
+        rotateTo(engine, 5, RotationDirection.CounterClockwise)
         val firstUnlock = confirm(engine)
-        val secondUnlock = rotate(engine, RotationDirection.Clockwise, 3)
+        val secondUnlock = rotate(engine, RotationDirection.CounterClockwise, 3)
 
         assertThat(firstUnlock.count { it == LockEngineOutput.Unlocked }).isEqualTo(1)
         assertThat(secondUnlock).doesNotContain(LockEngineOutput.Unlocked)
@@ -157,7 +157,7 @@ class LockEngineTest {
         )
 
         engine.dispatch(LockEngineEvent.StartAttempt)
-        val rotateOutputs = rotateTo(engine, 10, RotationDirection.CounterClockwise)
+        val rotateOutputs = rotateTo(engine, 10, RotationDirection.Clockwise)
         val confirmOutputs = confirm(engine)
 
         assertThat(rotateOutputs).contains(LockEngineOutput.CorrectStepHit)
