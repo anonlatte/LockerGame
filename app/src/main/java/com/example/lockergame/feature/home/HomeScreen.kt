@@ -1,23 +1,24 @@
 package com.example.lockergame.feature.home
 
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.windowInsetsPadding
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
-import androidx.wear.compose.material.Button
-import androidx.wear.compose.material.MaterialTheme
-import androidx.wear.compose.material.Scaffold
-import androidx.wear.compose.material.ScalingLazyColumn
-import androidx.wear.compose.material.Text
-import androidx.wear.compose.material.TimeText
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.wear.compose.foundation.lazy.TransformingLazyColumn
+import androidx.wear.compose.foundation.lazy.rememberTransformingLazyColumnState
+import androidx.wear.compose.material3.Button
+import androidx.wear.compose.material3.ButtonDefaults
+import androidx.wear.compose.material3.ListHeader
+import androidx.wear.compose.material3.ListHeaderDefaults
+import androidx.wear.compose.material3.MaterialTheme
+import androidx.wear.compose.material3.ScreenScaffold
+import androidx.wear.compose.material3.ScrollIndicator
+import androidx.wear.compose.material3.SurfaceTransformation
+import androidx.wear.compose.material3.Text
+import androidx.wear.compose.material3.lazy.rememberTransformationSpec
+import androidx.wear.compose.material3.lazy.transformedHeight
 
 @Composable
 fun HomeScreen(
@@ -25,50 +26,67 @@ fun HomeScreen(
     onDifficulty: () -> Unit,
     onCustomize: () -> Unit,
 ) {
+    val columnState = rememberTransformingLazyColumnState()
+    val transformationSpec = rememberTransformationSpec()
     val actions = listOf(
         "Start" to onStart,
         "Difficulty" to onDifficulty,
         "Customize" to onCustomize,
     )
 
-    Scaffold(timeText = { TimeText() }) {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .windowInsetsPadding(WindowInsets.safeDrawing),
+    ScreenScaffold(
+        scrollState = columnState,
+        scrollIndicator = {
+            ScrollIndicator(state = columnState)
+        },
+    ) { contentPadding ->
+        TransformingLazyColumn(
+            modifier = Modifier.fillMaxSize(),
+            state = columnState,
+            contentPadding = contentPadding,
         ) {
-            ScalingLazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(horizontal = 10.dp, vertical = 8.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-            ) {
-                item {
+            item {
+                ListHeader(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .transformedHeight(this, transformationSpec)
+                        .minimumVerticalContentPadding(ListHeaderDefaults.minimumTopListContentPadding),
+                    transformation = SurfaceTransformation(transformationSpec),
+                ) {
                     Text(
                         text = "Lock Cracker",
-                        style = MaterialTheme.typography.title2,
+                        style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold,
-                        modifier = Modifier.padding(top = 18.dp),
                     )
                 }
+            }
+            item {
+                Text(
+                    text = "Mechanical dial puzzle",
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .transformedHeight(this, transformationSpec)
+                        .minimumVerticalContentPadding(ButtonDefaults.minimumVerticalListContentPadding),
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.72f),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+            }
+            actions.forEach { (label, action) ->
                 item {
-                    Text(
-                        text = "Mechanical dial puzzle",
-                        style = MaterialTheme.typography.caption2,
-                        color = MaterialTheme.colors.onSurface.copy(alpha = 0.72f),
-                        modifier = Modifier.padding(top = 6.dp, bottom = 14.dp),
-                    )
-                }
-                actions.forEach { (label, action) ->
-                    item {
                     Button(
-                        onClick = action,
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(vertical = 4.dp),
+                            .transformedHeight(this, transformationSpec)
+                            .minimumVerticalContentPadding(ButtonDefaults.minimumVerticalListContentPadding),
+                        transformation = SurfaceTransformation(transformationSpec),
+                        onClick = action,
                     ) {
-                        Text(label)
-                    }
+                        Text(
+                            text = label,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                        )
                     }
                 }
             }
