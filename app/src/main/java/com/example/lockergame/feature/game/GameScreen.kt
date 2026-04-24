@@ -1,6 +1,7 @@
 package com.example.lockergame.feature.game
 
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Box
@@ -11,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -21,6 +23,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.input.rotary.onRotaryScrollEvent
 import androidx.compose.ui.platform.LocalDensity
@@ -29,13 +32,16 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.wear.compose.material.MaterialTheme
 import androidx.compose.ui.unit.dp
 import kotlin.math.hypot
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun GameScreen(
     onExit: () -> Unit,
     onGoToDifficulty: () -> Unit,
+    onShowResult: (GameUiState) -> Unit,
     viewModel: GameViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -45,20 +51,16 @@ fun GameScreen(
     val soundEnabled by rememberUpdatedState(settings.soundEnabled)
     val hapticsEnabled by rememberUpdatedState(settings.hapticsEnabled)
     val focusRequester = remember { FocusRequester() }
-    var doorAnimationStarted by remember { mutableStateOf(false) }
-    val doorOffsetProgress by animateFloatAsState(
-        targetValue = if (doorAnimationStarted) 1f else 0f,
-        label = "door_offset",
+    val coroutineScope = rememberCoroutineScope()
+    var knobPressed by remember { mutableStateOf(false) }
+    var dialFlashColor by remember { mutableStateOf(Color.Transparent) }
+    val knobScale by animateFloatAsState(
+        targetValue = if (knobPressed) 0.1f else 1f,
+        label = "knob_scale",
     )
-    val goldRevealProgress by animateFloatAsState(
-        targetValue = when (uiState.unlockAnimationPhase) {
-            com.example.lockergame.domain.model.UnlockAnimationPhase.GoldRevealed,
-            com.example.lockergame.domain.model.UnlockAnimationPhase.Completed,
-            -> 1f
-
-            else -> 0f
-        },
-        label = "gold_reveal",
+    val dialFlashAlpha by animateFloatAsState(
+        targetValue = if (dialFlashColor == Color.Transparent) 0f else 1f,
+        label = "dial_flash_alpha",
     )
     var dragAccumulator by remember { mutableFloatStateOf(0f) }
     val touchStepThreshold = with(LocalDensity.current) { 10.dp.toPx() }
@@ -74,19 +76,28 @@ fun GameScreen(
         focusRequester.requestFocus()
     }
 
-    LaunchedEffect(uiState.isUnlocked) {
-        if (!uiState.isUnlocked) {
-            doorAnimationStarted = false
-        }
-    }
-
     LaunchedEffect(Unit) {
         viewModel.effects.collectLatest { effect ->
             when (effect) {
                 GameUiEffect.PerformSubtleHaptic -> if (hapticsEnabled) haptics.performSubtleTick()
                 GameUiEffect.PerformUnlockHaptic -> if (hapticsEnabled) haptics.performUnlock()
                 GameUiEffect.PlayUnlockClick -> if (soundEnabled) soundPlayer.playUnlockClick()
-                GameUiEffect.StartDoorOpenAnimation -> doorAnimationStarted = true
+                GameUiEffect.NavigateToUnlockResult -> onShowResult(uiState)
+                GameUiEffect.StartDoorOpenAnimation -> Unit
+                GameUiEffect.FlashDialSuccess -> {
+                    dialFlashColor = Color(0xFF38D26E)
+                    coroutineScope.launch {
+                        delay(140)
+                        dialFlashColor = Color.Transparent
+                    }
+                }
+                GameUiEffect.FlashDialFailure -> {
+                    dialFlashColor = Color(0xFFE34B4B)
+                    coroutineScope.launch {
+                        delay(170)
+                        dialFlashColor = Color.Transparent
+                    }
+                }
             }
         }
     }
@@ -103,6 +114,14 @@ fun GameScreen(
             }
         },
         onKnobTap = {
+            if (soundEnabled) {
+                soundPlayer.playConfirmClick()
+            }
+            coroutineScope.launch {
+                knobPressed = true
+                delay(70)
+                knobPressed = false
+            }
             if (uiState.isUnlocked) {
                 viewModel.startNewGame()
             } else {
@@ -122,8 +141,10 @@ fun GameScreen(
             }
         },
         focusRequester = focusRequester,
-        doorOffsetProgress = doorOffsetProgress,
-        goldRevealProgress = goldRevealProgress,
+        doorOffsetProgress = 0f,
+        goldRevealProgress = 0f,
+        knobScale = knobScale,
+        dialFlashColor = dialFlashColor.copy(alpha = 0.8f * dialFlashAlpha),
     )
 }
 
@@ -139,6 +160,8 @@ private fun GameScreenContent(
     focusRequester: FocusRequester,
     doorOffsetProgress: Float,
     goldRevealProgress: Float,
+    knobScale: Float,
+    dialFlashColor: Color,
 ) {
     Box(
         modifier = Modifier
@@ -188,6 +211,8 @@ private fun GameScreenContent(
                         dialRotationDegrees = uiState.dialRotationDegrees,
                         dialDivisions = uiState.dialDivisions,
                         lockTheme = uiState.lockTheme,
+                        knobScale = knobScale,
+                        feedbackRingColor = dialFlashColor,
                         modifier = Modifier.fillMaxSize(),
                     )
                 }

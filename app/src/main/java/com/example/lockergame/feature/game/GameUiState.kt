@@ -24,4 +24,7 @@ sealed interface GameUiEffect {
     data object PerformUnlockHaptic : GameUiEffect
     data object PlayUnlockClick : GameUiEffect
     data object StartDoorOpenAnimation : GameUiEffect
+    data object NavigateToUnlockResult : GameUiEffect
+    data object FlashDialSuccess : GameUiEffect
+    data object FlashDialFailure : GameUiEffect
 }

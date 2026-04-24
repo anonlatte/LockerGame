@@ -12,6 +12,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 interface SoundPlayer {
+    fun playConfirmClick()
     fun playUnlockClick()
 }
 
@@ -49,6 +50,14 @@ class AndroidSoundPlayer @Inject constructor(
             soundPool.play(soundId, 1f, 1f, 1, 0, 1f)
         } else {
             toneGenerator.startTone(ToneGenerator.TONE_PROP_BEEP, 90)
+        }
+    }
+
+    override fun playConfirmClick() {
+        if (loaded && soundId != 0) {
+            soundPool.play(soundId, 0.72f, 0.72f, 1, 0, 1.08f)
+        } else {
+            toneGenerator.startTone(ToneGenerator.TONE_PROP_BEEP, 45)
         }
     }
 }

@@ -102,8 +102,20 @@ class GameViewModel @Inject constructor(
     }
 
     fun onConfirmInput() {
+        val previousState = engine?.state
         val outputs = engine?.dispatch(LockEngineEvent.ConfirmStep).orEmpty()
         syncState()
+        val currentState = engine?.state
+
+        if (previousState != null && currentState != null) {
+            val success = currentState.currentStepIndex > previousState.currentStepIndex || currentState.isUnlocked
+            val failure = outputs.any { it == LockEngineOutput.WrongMove || it == LockEngineOutput.Reset }
+            when {
+                success -> emitEffect(GameUiEffect.FlashDialSuccess)
+                failure || outputs.any { it == LockEngineOutput.InputConfirmed } -> emitEffect(GameUiEffect.FlashDialFailure)
+            }
+        }
+
         handleOutputs(outputs)
     }
 
@@ -130,13 +142,8 @@ class GameViewModel @Inject constructor(
             val elapsed = System.currentTimeMillis() - gameStartedAtMillis
             settingsRepository.recordUnlock(currentSettings.difficulty, elapsed)
             _uiState.value = _uiState.value.copy(unlockAnimationPhase = UnlockAnimationPhase.Click)
-            delay(160)
-            _effects.emit(GameUiEffect.StartDoorOpenAnimation)
-            _uiState.value = _uiState.value.copy(unlockAnimationPhase = UnlockAnimationPhase.DoorOpening)
-            delay(700)
-            _uiState.value = _uiState.value.copy(unlockAnimationPhase = UnlockAnimationPhase.GoldRevealed)
-            delay(350)
-            _uiState.value = _uiState.value.copy(unlockAnimationPhase = UnlockAnimationPhase.Completed)
+            delay(140)
+            _effects.emit(GameUiEffect.NavigateToUnlockResult)
         }
     }
 
