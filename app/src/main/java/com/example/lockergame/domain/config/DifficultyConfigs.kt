@@ -24,9 +24,9 @@ object DifficultyConfigs {
             tolerance = 2,
             requireClearing = false,
             requiredClearingTurns = 0,
-            requireDirectionChanges = false,
+            requireDirectionChanges = true,
             requirePassCount = false,
-            resetOnWrongDirection = false,
+            resetOnWrongDirection = true,
             resetOnOvershoot = false,
             inputConfig = DifficultyInputConfig(
                 rotaryPixelsPerStep = 18f,
@@ -49,7 +49,7 @@ object DifficultyConfigs {
             requiredClearingTurns = 0,
             requireDirectionChanges = true,
             requirePassCount = false,
-            resetOnWrongDirection = false,
+            resetOnWrongDirection = true,
             resetOnOvershoot = false,
             inputConfig = DifficultyInputConfig(
                 rotaryPixelsPerStep = 22f,
@@ -65,13 +65,13 @@ object DifficultyConfigs {
 
         LockDifficulty.Hard -> LockDifficultyConfig(
             difficulty = difficulty,
-            combinationLength = 3,
+            combinationLength = 4,
             dialDivisions = dialDivisions,
             tolerance = 0,
             requireClearing = true,
             requiredClearingTurns = 2,
             requireDirectionChanges = true,
-            requirePassCount = true,
+            requirePassCount = false,
             resetOnWrongDirection = true,
             resetOnOvershoot = true,
             inputConfig = DifficultyInputConfig(
@@ -81,7 +81,7 @@ object DifficultyConfigs {
                 requireClearing = true,
                 requiredClearingTurns = 2,
                 strictDirection = true,
-                strictPassCount = true,
+                strictPassCount = false,
                 resetOnMistake = true,
             ),
         )
@@ -94,7 +94,7 @@ object DifficultyConfigs {
             requireClearing = true,
             requiredClearingTurns = 3,
             requireDirectionChanges = true,
-            requirePassCount = true,
+            requirePassCount = false,
             resetOnWrongDirection = true,
             resetOnOvershoot = true,
             inputConfig = DifficultyInputConfig(
@@ -104,7 +104,7 @@ object DifficultyConfigs {
                 requireClearing = true,
                 requiredClearingTurns = 3,
                 strictDirection = true,
-                strictPassCount = true,
+                strictPassCount = false,
                 resetOnMistake = true,
             ),
         )

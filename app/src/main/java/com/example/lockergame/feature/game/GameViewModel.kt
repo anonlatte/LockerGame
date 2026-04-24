@@ -1,5 +1,6 @@
 package com.example.lockergame.feature.game
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.lockergame.data.settings.GameSettings
@@ -31,6 +32,10 @@ class GameViewModel @Inject constructor(
     private val settingsRepository: SettingsRepository,
     private val combinationGenerator: CombinationGenerator,
 ) : ViewModel() {
+    private companion object {
+        const val TAG = "LockerGame"
+    }
+
     private val _uiState = MutableStateFlow(GameUiState())
     val uiState: StateFlow<GameUiState> = _uiState.asStateFlow()
 
@@ -74,6 +79,7 @@ class GameViewModel @Inject constructor(
                 length = difficultyConfig.combinationLength,
                 dialDivisions = dialDivisions,
             )
+            Log.d(TAG, "Generated combination=${combination.values.joinToString(",")}")
             engine = LockEngine(combination, difficultyConfig).also {
                 it.dispatch(LockEngineEvent.StartAttempt)
             }
@@ -86,10 +92,12 @@ class GameViewModel @Inject constructor(
     fun resetAttempt() {
         engine?.dispatch(LockEngineEvent.ResetAttempt)
         inputController?.reset()
+        Log.w(TAG, "Input reset")
         syncState(unlockAnimationPhase = UnlockAnimationPhase.Locked)
     }
 
     fun onRotaryInput(deltaPixels: Float) {
+        val previousDirection = engine?.state?.lastDirection
         val stepResult = inputController?.onRotary(deltaPixels) ?: return
         val outputs = engine?.dispatch(
             LockEngineEvent.DialRotated(
@@ -98,6 +106,10 @@ class GameViewModel @Inject constructor(
             ),
         ).orEmpty()
         syncState()
+        val currentDirection = engine?.state?.lastDirection
+        if (currentDirection != null && currentDirection != previousDirection) {
+            Log.d(TAG, "Rotation direction=$currentDirection")
+        }
         handleOutputs(outputs)
     }
 
@@ -106,6 +118,10 @@ class GameViewModel @Inject constructor(
         val outputs = engine?.dispatch(LockEngineEvent.ConfirmStep).orEmpty()
         syncState()
         val currentState = engine?.state
+
+        currentState?.let {
+            Log.d(TAG, "Selected value=${it.dialValue} phase=${it.phase}")
+        }
 
         if (previousState != null && currentState != null) {
             val success = currentState.currentStepIndex > previousState.currentStepIndex || currentState.isUnlocked
@@ -125,8 +141,13 @@ class GameViewModel @Inject constructor(
                 LockEngineOutput.InputConfirmed -> Unit
                 LockEngineOutput.CorrectStepHit -> emitEffect(GameUiEffect.PerformSubtleHaptic)
                 LockEngineOutput.Unlocked -> onUnlocked()
-                LockEngineOutput.Reset,
-                LockEngineOutput.WrongMove,
+                LockEngineOutput.Reset -> {
+                    Log.w(TAG, "Input reset")
+                    Log.e(TAG, "Lock input error: reset")
+                }
+                LockEngineOutput.WrongMove -> {
+                    Log.e(TAG, "Lock input error: wrong move")
+                }
                 LockEngineOutput.None,
                 -> Unit
             }

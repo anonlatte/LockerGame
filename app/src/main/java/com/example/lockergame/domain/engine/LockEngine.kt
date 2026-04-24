@@ -71,7 +71,10 @@ class LockEngine(
         val directionChanged = state.lastDirection != null && state.lastDirection != direction
         if (directionChanged) {
             stepsInCurrentDirection = 0
-            state = state.copy(fullTurnsInCurrentDirection = 0, isCurrentTargetAligned = false)
+            state = state.copy(
+                fullTurnsInCurrentDirection = 0,
+                isCurrentTargetAligned = false,
+            )
         }
 
         val newValue = rotate(previousValue, direction)
@@ -84,6 +87,10 @@ class LockEngine(
 
         if (state.phase == LockPhase.Clearing) {
             return handleClearing(direction)
+        }
+
+        if (state.phase == LockPhase.ReadyToOpen) {
+            return handleReadyToOpen(direction)
         }
 
         val stepIndex = state.currentStepIndex
@@ -103,9 +110,43 @@ class LockEngine(
         val target = combination.values[stepIndex]
         val isAligned = matchesTarget(newValue, target, config.tolerance)
         val justAligned = isAligned && !state.isCurrentTargetAligned
+        if (justAligned) {
+            val hitCount = state.currentTargetHitCount + 1
+            state = state.copy(
+                isCurrentTargetAligned = true,
+                currentTargetHitCount = hitCount,
+            )
+            return if (hitCount == requiredHitsForStep(stepIndex)) {
+                LockEngineOutput.CorrectStepHit
+            } else {
+                LockEngineOutput.None
+            }
+        }
+
         state = state.copy(isCurrentTargetAligned = isAligned)
 
-        return if (justAligned) LockEngineOutput.CorrectStepHit else LockEngineOutput.None
+        return LockEngineOutput.None
+    }
+
+    private fun handleReadyToOpen(direction: RotationDirection): LockEngineOutput {
+        if (direction != expectedOpenDirection()) {
+            return onWrongMove(fullReset = true)
+        }
+
+        val openProgressSteps = state.openProgressSteps + 1
+        state = state.copy(openProgressSteps = openProgressSteps)
+        if (openProgressSteps >= requiredOpenSteps()) {
+            if (!unlockEmitted) {
+                unlockEmitted = true
+                state = state.copy(
+                    phase = LockPhase.Unlocked,
+                    isCurrentTargetAligned = false,
+                    isUnlocked = true,
+                )
+                return LockEngineOutput.Unlocked
+            }
+        }
+        return LockEngineOutput.None
     }
 
     private fun handleClearing(direction: RotationDirection): LockEngineOutput {
@@ -119,6 +160,8 @@ class LockEngine(
                 lastDirection = null,
                 fullTurnsInCurrentDirection = 0,
                 isCurrentTargetAligned = false,
+                currentTargetHitCount = 0,
+                openProgressSteps = 0,
             )
             stepsInCurrentDirection = 0
             stopProcessingCurrentRotation = true
@@ -135,6 +178,10 @@ class LockEngine(
 
         val target = combination.values[stepIndex]
         if (!matchesTarget(state.dialValue, target, config.tolerance)) {
+            return onWrongMove(fullReset = config.resetOnOvershoot)
+        }
+
+        if (state.currentTargetHitCount < requiredHitsForStep(stepIndex)) {
             return onWrongMove(fullReset = config.resetOnOvershoot)
         }
 
@@ -157,16 +204,13 @@ class LockEngine(
         val stepIndex = state.currentStepIndex
         val nextStepIndex = stepIndex + 1
         if (nextStepIndex >= combination.values.size) {
-            if (!unlockEmitted) {
-                unlockEmitted = true
-                state = state.copy(
-                phase = LockPhase.Unlocked,
+            state = state.copy(
+                phase = LockPhase.ReadyToOpen,
                 currentStepIndex = combination.values.size,
                 isCurrentTargetAligned = false,
-                isUnlocked = true,
+                currentTargetHitCount = 0,
+                openProgressSteps = 0,
             )
-            return LockEngineOutput.Unlocked
-            }
             return LockEngineOutput.None
         }
 
@@ -174,6 +218,8 @@ class LockEngine(
             phase = phaseForStepIndex(nextStepIndex),
             currentStepIndex = nextStepIndex,
             isCurrentTargetAligned = false,
+            currentTargetHitCount = 0,
+            openProgressSteps = 0,
         )
         if (nextStepIndex == 1) {
             state = state.copy(passedTargets = emptyMap())
@@ -192,6 +238,8 @@ class LockEngine(
             phase = phaseForStepIndex(state.currentStepIndex),
             passedTargets = emptyMap(),
             isCurrentTargetAligned = false,
+            currentTargetHitCount = 0,
+            openProgressSteps = 0,
             mistakeCount = mistakeCount,
         )
         return LockEngineOutput.WrongMove
@@ -219,6 +267,24 @@ class LockEngine(
         else -> RotationDirection.CounterClockwise
     }
 
+    private fun expectedOpenDirection(): RotationDirection {
+        val lastStepIndex = combination.values.lastIndex
+        return when (expectedDirection(lastStepIndex)) {
+            RotationDirection.Clockwise -> RotationDirection.CounterClockwise
+            RotationDirection.CounterClockwise -> RotationDirection.Clockwise
+        }
+    }
+
+    private fun requiredHitsForStep(stepIndex: Int): Int = when (config.difficulty) {
+        com.example.lockergame.domain.model.LockDifficulty.Easy -> 1
+        else -> (combination.values.size - stepIndex)
+    }
+
+    private fun requiredOpenSteps(): Int = when (config.dialDivisions) {
+        in 0..60 -> 8
+        else -> 12
+    }
+
     private fun resetToStart(mistakes: Int = state.mistakeCount) {
         stepsInCurrentDirection = 0
         unlockEmitted = false
@@ -233,6 +299,8 @@ class LockEngine(
         fullTurnsInCurrentDirection = 0,
         passedTargets = emptyMap(),
         isCurrentTargetAligned = false,
+        currentTargetHitCount = 0,
+        openProgressSteps = 0,
         isUnlocked = false,
         mistakeCount = 0,
     )

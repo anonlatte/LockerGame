@@ -68,8 +68,8 @@ fun DifficultyScreen(
 }
 
 private fun descriptionFor(difficulty: LockDifficulty): String = when (difficulty) {
-    LockDifficulty.Easy -> "2 numbers, forgiving"
-    LockDifficulty.Medium -> "3 numbers, direction matters"
-    LockDifficulty.Hard -> "Clearing and pass counts"
-    LockDifficulty.Expert -> "Strict realistic entry"
+    LockDifficulty.Easy -> "Simple, n = 1"
+    LockDifficulty.Medium -> "Standard, 3 numbers"
+    LockDifficulty.Hard -> "Complex, 4 numbers"
+    LockDifficulty.Expert -> "Strict 4-number variant"
 }

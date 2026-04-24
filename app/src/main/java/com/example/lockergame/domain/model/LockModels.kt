@@ -62,6 +62,8 @@ data class LockAttemptState(
     val fullTurnsInCurrentDirection: Int,
     val passedTargets: Map<Int, Int>,
     val isCurrentTargetAligned: Boolean,
+    val currentTargetHitCount: Int,
+    val openProgressSteps: Int,
     val isUnlocked: Boolean,
     val mistakeCount: Int,
 )
