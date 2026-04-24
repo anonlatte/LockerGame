@@ -29,8 +29,8 @@ object DifficultyConfigs {
             resetOnWrongDirection = false,
             resetOnOvershoot = false,
             inputConfig = DifficultyInputConfig(
-                rotaryPixelsPerStep = 6f,
-                dialStepsPerInputStep = 2,
+                rotaryPixelsPerStep = 18f,
+                dialStepsPerInputStep = 1,
                 tolerance = 2,
                 requireClearing = false,
                 requiredClearingTurns = 0,
@@ -52,7 +52,7 @@ object DifficultyConfigs {
             resetOnWrongDirection = false,
             resetOnOvershoot = false,
             inputConfig = DifficultyInputConfig(
-                rotaryPixelsPerStep = 10f,
+                rotaryPixelsPerStep = 22f,
                 dialStepsPerInputStep = 1,
                 tolerance = 1,
                 requireClearing = false,
@@ -75,7 +75,7 @@ object DifficultyConfigs {
             resetOnWrongDirection = true,
             resetOnOvershoot = true,
             inputConfig = DifficultyInputConfig(
-                rotaryPixelsPerStep = 12f,
+                rotaryPixelsPerStep = 26f,
                 dialStepsPerInputStep = 1,
                 tolerance = 0,
                 requireClearing = true,
@@ -98,7 +98,7 @@ object DifficultyConfigs {
             resetOnWrongDirection = true,
             resetOnOvershoot = true,
             inputConfig = DifficultyInputConfig(
-                rotaryPixelsPerStep = 16f,
+                rotaryPixelsPerStep = 32f,
                 dialStepsPerInputStep = 1,
                 tolerance = 0,
                 requireClearing = true,

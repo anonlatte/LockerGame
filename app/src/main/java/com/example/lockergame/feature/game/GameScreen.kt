@@ -28,6 +28,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.wear.compose.material.MaterialTheme
 import androidx.compose.ui.unit.dp
+import kotlin.math.hypot
 import kotlinx.coroutines.flow.collectLatest
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -101,7 +102,14 @@ fun GameScreen(
                 viewModel.onRotaryInput(consume)
             }
         },
-        onTap = {
+        onKnobTap = {
+            if (uiState.isUnlocked) {
+                viewModel.startNewGame()
+            } else {
+                viewModel.onConfirmInput()
+            }
+        },
+        onBackgroundTap = {
             if (uiState.isUnlocked) {
                 viewModel.startNewGame()
             }
@@ -125,7 +133,8 @@ private fun GameScreenContent(
     uiState: GameUiState,
     onRotary: (Float) -> Unit,
     onDragDelta: (Float) -> Unit,
-    onTap: () -> Unit,
+    onKnobTap: () -> Unit,
+    onBackgroundTap: () -> Unit,
     onLongPress: () -> Unit,
     focusRequester: FocusRequester,
     doorOffsetProgress: Float,
@@ -145,9 +154,19 @@ private fun GameScreenContent(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .pointerInput(onTap, onLongPress) {
+                .pointerInput(onKnobTap, onBackgroundTap, onLongPress, uiState.isUnlocked) {
                     detectTapGestures(
-                        onTap = { onTap() },
+                        onTap = { offset ->
+                            val centerX = size.width / 2f
+                            val centerY = size.height / 2f
+                            val knobTapRadius = minOf(size.width, size.height) * 0.16f
+                            val distance = hypot(offset.x - centerX, offset.y - centerY)
+                            if (distance <= knobTapRadius) {
+                                onKnobTap()
+                            } else if (uiState.isUnlocked) {
+                                onBackgroundTap()
+                            }
+                        },
                         onLongPress = { onLongPress() },
                     )
                 }

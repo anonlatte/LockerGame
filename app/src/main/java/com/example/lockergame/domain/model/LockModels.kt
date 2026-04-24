@@ -61,6 +61,7 @@ data class LockAttemptState(
     val lastDirection: RotationDirection?,
     val fullTurnsInCurrentDirection: Int,
     val passedTargets: Map<Int, Int>,
+    val isCurrentTargetAligned: Boolean,
     val isUnlocked: Boolean,
     val mistakeCount: Int,
 )
@@ -91,12 +92,14 @@ sealed interface LockEngineEvent {
         val steps: Int,
     ) : LockEngineEvent
 
+    data object ConfirmStep : LockEngineEvent
     data object StartAttempt : LockEngineEvent
     data object ResetAttempt : LockEngineEvent
 }
 
 sealed interface LockEngineOutput {
     data object None : LockEngineOutput
+    data object InputConfirmed : LockEngineOutput
     data object CorrectStepHit : LockEngineOutput
     data object WrongMove : LockEngineOutput
     data object Unlocked : LockEngineOutput

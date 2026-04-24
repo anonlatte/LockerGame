@@ -220,6 +220,43 @@ fun LockDial(
                 radius = radius * 0.24f,
                 style = Stroke(width = size.minDimension * 0.012f),
             )
+            drawCircle(
+                brush = Brush.radialGradient(
+                    colors = listOf(palette.accent.copy(alpha = 0.26f), Color.Transparent),
+                    center = center,
+                    radius = radius * 0.38f,
+                ),
+                radius = radius * 0.32f,
+            )
+
+            val handleRadius = radius * 0.13f
+            drawCircle(
+                brush = Brush.radialGradient(
+                    colors = listOf(Color(0xFF161A1D), Color(0xFF050607)),
+                    center = center - Offset(handleRadius * 0.25f, handleRadius * 0.25f),
+                    radius = handleRadius * 1.8f,
+                ),
+                radius = handleRadius,
+            )
+            drawCircle(
+                color = palette.accent.copy(alpha = 0.65f),
+                radius = handleRadius,
+                style = Stroke(width = size.minDimension * 0.01f),
+            )
+            drawLine(
+                color = palette.tick.copy(alpha = 0.92f),
+                start = Offset(center.x, center.y - handleRadius * 0.58f),
+                end = Offset(center.x, center.y + handleRadius * 0.58f),
+                strokeWidth = size.minDimension * 0.012f,
+                cap = StrokeCap.Round,
+            )
+            drawLine(
+                color = palette.tick.copy(alpha = 0.92f),
+                start = Offset(center.x - handleRadius * 0.58f, center.y),
+                end = Offset(center.x + handleRadius * 0.58f, center.y),
+                strokeWidth = size.minDimension * 0.012f,
+                cap = StrokeCap.Round,
+            )
         }
 
         Canvas(modifier = Modifier.fillMaxSize()) {

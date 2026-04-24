@@ -16,12 +16,14 @@ class RotaryStepMapperTest {
         )
 
         assertThat(mapper.push(8f)).isNull()
+        assertThat(mapper.push(8f)).isNull()
+        assertThat(mapper.push(8f)).isNull()
 
         val first = mapper.push(8f)
         assertThat(first?.dialSteps).isEqualTo(1)
         assertThat(first?.direction).isEqualTo(RotationDirection.CounterClockwise)
 
-        val second = mapper.push(-32f)
+        val second = mapper.push(-64f)
         assertThat(second?.dialSteps).isEqualTo(2)
         assertThat(second?.direction).isEqualTo(RotationDirection.Clockwise)
     }

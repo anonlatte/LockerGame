@@ -101,9 +101,16 @@ class GameViewModel @Inject constructor(
         handleOutputs(outputs)
     }
 
+    fun onConfirmInput() {
+        val outputs = engine?.dispatch(LockEngineEvent.ConfirmStep).orEmpty()
+        syncState()
+        handleOutputs(outputs)
+    }
+
     private fun handleOutputs(outputs: List<LockEngineOutput>) {
         outputs.forEach { output ->
             when (output) {
+                LockEngineOutput.InputConfirmed -> Unit
                 LockEngineOutput.CorrectStepHit -> emitEffect(GameUiEffect.PerformSubtleHaptic)
                 LockEngineOutput.Unlocked -> onUnlocked()
                 LockEngineOutput.Reset,
