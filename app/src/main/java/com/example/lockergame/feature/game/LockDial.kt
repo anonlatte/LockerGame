@@ -159,6 +159,15 @@ fun LockDial(
             typeface = android.graphics.Typeface.MONOSPACE
         }
     }
+    val centerValuePaint = remember(palette) {
+        Paint().apply {
+            isAntiAlias = true
+            textAlign = Paint.Align.CENTER
+            textSize = 18f
+            color = palette.number.copy(alpha = 0.84f).toArgbCompat()
+            typeface = android.graphics.Typeface.MONOSPACE
+        }
+    }
 
     Box(modifier = modifier, contentAlignment = Alignment.Center) {
         Canvas(modifier = Modifier.fillMaxSize()) {
@@ -267,6 +276,14 @@ fun LockDial(
                     end = Offset(center.x + handleRadius * 0.58f, center.y),
                     strokeWidth = size.minDimension * 0.012f,
                     cap = StrokeCap.Round,
+                )
+                drawContext.canvas.nativeCanvas.drawText(
+                    dialValue.toString(),
+                    center.x,
+                    center.y + size.minDimension * 0.12f,
+                    centerValuePaint.apply {
+                        textSize = size.minDimension * 0.06f
+                    },
                 )
             }
         }

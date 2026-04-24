@@ -13,6 +13,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.wear.compose.material.Button
 import androidx.wear.compose.material.Chip
+import androidx.wear.compose.material.ChipDefaults
 import androidx.wear.compose.material.MaterialTheme
 import androidx.wear.compose.material.Scaffold
 import androidx.wear.compose.material.ScalingLazyColumn
@@ -47,8 +48,21 @@ fun CustomizationScreen(
                     item {
                         Chip(
                             onClick = { viewModel.selectTheme(lockTheme) },
-                            label = { Text(lockTheme.name) },
+                            label = {
+                                Text(
+                                    if (settings.lockTheme == lockTheme) {
+                                        "✓ ${lockTheme.name}"
+                                    } else {
+                                        lockTheme.name
+                                    },
+                                )
+                            },
                             secondaryLabel = { Text(themeDescription(lockTheme)) },
+                            colors = if (settings.lockTheme == lockTheme) {
+                                ChipDefaults.secondaryChipColors()
+                            } else {
+                                ChipDefaults.primaryChipColors()
+                            },
                         )
                     }
                 }
