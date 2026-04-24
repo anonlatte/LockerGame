@@ -10,8 +10,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.wear.compose.foundation.lazy.TransformingLazyColumn
 import androidx.wear.compose.foundation.lazy.rememberTransformingLazyColumnState
-import androidx.wear.compose.material3.Button
-import androidx.wear.compose.material3.ButtonDefaults
 import androidx.wear.compose.material3.ListHeader
 import androidx.wear.compose.material3.ListHeaderDefaults
 import androidx.wear.compose.material3.MaterialTheme
@@ -26,8 +24,6 @@ import com.example.lockergame.domain.model.LockDifficulty
 @Composable
 fun DifficultyScreen(
     viewModel: SettingsViewModel,
-    onBack: () -> Unit,
-    onPlay: () -> Unit,
 ) {
     val settings by viewModel.settings.collectAsStateWithLifecycle()
     val columnState = rememberTransformingLazyColumnState()
@@ -60,7 +56,7 @@ fun DifficultyScreen(
 
             LockDifficulty.entries.forEach { difficulty ->
                 item {
-                    Button(
+                    androidx.wear.compose.material3.Button(
                         modifier = Modifier
                             .fillMaxWidth()
                             .transformedHeight(this, transformationSpec),
@@ -88,30 +84,6 @@ fun DifficultyScreen(
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                     )
-                }
-            }
-
-            item {
-                Button(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .transformedHeight(this, transformationSpec),
-                    transformation = SurfaceTransformation(transformationSpec),
-                    onClick = onPlay,
-                ) {
-                    Text("Play")
-                }
-            }
-
-            item {
-                Button(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .transformedHeight(this, transformationSpec),
-                    transformation = SurfaceTransformation(transformationSpec),
-                    onClick = onBack,
-                ) {
-                    Text("Back")
                 }
             }
         }

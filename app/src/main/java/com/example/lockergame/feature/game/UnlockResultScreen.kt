@@ -19,10 +19,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import androidx.wear.compose.material.Button
-import androidx.wear.compose.material.MaterialTheme
-import androidx.wear.compose.material.Text
+import androidx.wear.compose.material3.Icon
+import androidx.wear.compose.material3.IconButton
+import androidx.wear.compose.material3.MaterialTheme
 import com.example.lockergame.domain.config.DifficultyConfigs
 import com.example.lockergame.domain.model.LockDifficulty
 import com.example.lockergame.domain.model.LockTheme
@@ -58,7 +59,7 @@ fun UnlockResultScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(MaterialTheme.colors.background)
+            .background(MaterialTheme.colorScheme.background)
             .pointerInput(onReplay, onNextDifficulty) {
                 detectTapGestures(
                     onTap = { onReplay() },
@@ -88,14 +89,23 @@ fun UnlockResultScreen(
                     .align(Alignment.BottomCenter)
                     .padding(bottom = 12.dp),
             ) {
-                Button(onClick = onReplay, modifier = Modifier.padding(horizontal = 4.dp)) {
-                    Text("Replay")
+                IconButton(onClick = onReplay, modifier = Modifier.padding(horizontal = 4.dp)) {
+                    Icon(
+                        painter = painterResource(id = android.R.drawable.ic_menu_revert),
+                        contentDescription = "Replay",
+                    )
                 }
-                Button(onClick = onNextDifficulty, modifier = Modifier.padding(horizontal = 4.dp)) {
-                    Text(difficulty.name)
+                IconButton(onClick = onNextDifficulty, modifier = Modifier.padding(horizontal = 4.dp)) {
+                    Icon(
+                        painter = painterResource(id = android.R.drawable.ic_menu_more),
+                        contentDescription = "Difficulty ${difficulty.name}",
+                    )
                 }
-                Button(onClick = onExit, modifier = Modifier.padding(horizontal = 4.dp)) {
-                    Text("Exit")
+                IconButton(onClick = onExit, modifier = Modifier.padding(horizontal = 4.dp)) {
+                    Icon(
+                        painter = painterResource(id = android.R.drawable.ic_menu_close_clear_cancel),
+                        contentDescription = "Exit",
+                    )
                 }
             }
         }

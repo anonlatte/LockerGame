@@ -48,15 +48,12 @@ fun LockerGameApp() {
                 val viewModel: SettingsViewModel = hiltViewModel()
                 DifficultyScreen(
                     viewModel = viewModel,
-                    onBack = { navController.popBackStack() },
-                    onPlay = { navController.navigate(Routes.Game) },
                 )
             }
             composable(Routes.Customization) {
                 val viewModel: SettingsViewModel = hiltViewModel()
                 CustomizationScreen(
                     viewModel = viewModel,
-                    onBack = { navController.popBackStack() },
                 )
             }
             composable(Routes.Game) {

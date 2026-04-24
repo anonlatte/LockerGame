@@ -1,17 +1,21 @@
 package com.example.lockergame.feature.settings
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.Row
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.res.painterResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.wear.compose.foundation.lazy.TransformingLazyColumn
 import androidx.wear.compose.foundation.lazy.rememberTransformingLazyColumnState
 import androidx.wear.compose.material3.Button
-import androidx.wear.compose.material3.ButtonDefaults
+import androidx.wear.compose.material3.Icon
+import androidx.wear.compose.material3.IconButton
 import androidx.wear.compose.material3.ListHeader
 import androidx.wear.compose.material3.ListHeaderDefaults
 import androidx.wear.compose.material3.MaterialTheme
@@ -26,7 +30,6 @@ import com.example.lockergame.domain.model.LockTheme
 @Composable
 fun CustomizationScreen(
     viewModel: SettingsViewModel,
-    onBack: () -> Unit,
 ) {
     val settings by viewModel.settings.collectAsStateWithLifecycle()
     val columnState = rememberTransformingLazyColumnState()
@@ -103,50 +106,39 @@ fun CustomizationScreen(
             }
 
             item {
-                Button(
+                Row(
                     modifier = Modifier
                         .fillMaxWidth()
                         .transformedHeight(this, transformationSpec),
-                    transformation = SurfaceTransformation(transformationSpec),
-                    onClick = { viewModel.setSoundEnabled(!settings.soundEnabled) },
+                    horizontalArrangement = Arrangement.SpaceEvenly,
                 ) {
-                    Text("Sound: ${if (settings.soundEnabled) "Enabled" else "Disabled"}")
-                }
-            }
-
-            item {
-                Button(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .transformedHeight(this, transformationSpec),
-                    transformation = SurfaceTransformation(transformationSpec),
-                    onClick = { viewModel.setHapticsEnabled(!settings.hapticsEnabled) },
-                ) {
-                    Text("Haptics: ${if (settings.hapticsEnabled) "Enabled" else "Disabled"}")
-                }
-            }
-
-            item {
-                Button(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .transformedHeight(this, transformationSpec),
-                    transformation = SurfaceTransformation(transformationSpec),
-                    onClick = { viewModel.setTutorialHintsEnabled(!settings.tutorialHintsEnabled) },
-                ) {
-                    Text("Hints: ${if (settings.tutorialHintsEnabled) "Enabled" else "Disabled"}")
-                }
-            }
-
-            item {
-                Button(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .transformedHeight(this, transformationSpec),
-                    transformation = SurfaceTransformation(transformationSpec),
-                    onClick = onBack,
-                ) {
-                    Text("Back")
+                    IconButton(onClick = { viewModel.setSoundEnabled(!settings.soundEnabled) }) {
+                        Icon(
+                            painter = painterResource(
+                                id = if (settings.soundEnabled) {
+                                    android.R.drawable.ic_lock_silent_mode_off
+                                } else {
+                                    android.R.drawable.ic_lock_silent_mode
+                                },
+                            ),
+                            contentDescription = "Sound",
+                            tint = if (settings.soundEnabled) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
+                        )
+                    }
+                    IconButton(onClick = { viewModel.setHapticsEnabled(!settings.hapticsEnabled) }) {
+                        Icon(
+                            painter = painterResource(id = android.R.drawable.ic_menu_manage),
+                            contentDescription = "Haptics",
+                            tint = if (settings.hapticsEnabled) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
+                        )
+                    }
+                    IconButton(onClick = { viewModel.setTutorialHintsEnabled(!settings.tutorialHintsEnabled) }) {
+                        Icon(
+                            painter = painterResource(id = android.R.drawable.ic_menu_help),
+                            contentDescription = "Hints",
+                            tint = if (settings.tutorialHintsEnabled) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
+                        )
+                    }
                 }
             }
         }
